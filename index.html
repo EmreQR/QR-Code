@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Lien</title>
+<style>
+  :root { color-scheme: light dark; --bg:#EDF0F5; --fg:#121A26; --muted:#566274; --accent:#2F4BFF; --on:#fff; }
+  @media (prefers-color-scheme: dark) { :root { --bg:#0D1117; --fg:#E7ECF3; --muted:#97A3B6; --accent:#8A9AFF; --on:#0D1117; } }
+  html, body { margin:0; min-height:100%; background:var(--bg); color:var(--fg); font:400 1rem/1.5 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  main { max-width:30rem; margin:0 auto; padding:40px 16px calc(40px + env(safe-area-inset-bottom,0px)); display:flex; flex-direction:column; gap:24px; }
+  img { display:block; width:100%; max-height:70vh; object-fit:cover; border-radius:20px; }
+  h1 { margin:0; font-size:clamp(2rem,9vw,2.8rem); line-height:1.05; letter-spacing:-.02em; overflow-wrap:anywhere; }
+  p { margin:0; white-space:pre-line; overflow-wrap:anywhere; }
+  .muted { color:var(--muted); }
+  .go { display:flex; align-items:center; justify-content:center; min-height:72px; border-radius:18px; background:var(--accent); color:var(--on); font-weight:700; font-size:1.25rem; text-decoration:none; }
+  :focus-visible { outline:3px solid var(--accent); outline-offset:3px; }
+</style>
+</head>
+<body>
+<main id="app"><p class="muted">Chargement…</p></main>
+<script>
+(function () {
+  var app = document.getElementById('app');
+  function safe(u) {
+    u = (u || '').trim();
+    if (!u) return null;
+    if (!/^https?:\/\//i.test(u)) { if (/^[a-z][a-z0-9+.-]*:/i.test(u)) return null; u = 'https://' + u; }
+    try { new URL(u); return u; } catch (e) { return null; }
+  }
+  function el(tag, text, cls) { var n = document.createElement(tag); if (text) n.textContent = text; if (cls) n.className = cls; return n; }
+  fetch('config.json?t=' + Date.now(), { cache: 'no-store' })
+    .then(function (r) { return r.json(); })
+    .then(function (c) {
+      var url = safe(c.url);
+      var hasPage = c.photo || c.title || c.text;
+      if (!hasPage && url) { location.replace(url); app.replaceChildren(el('p', 'Redirection…', 'muted')); return; }
+      var parts = [];
+      if (c.photo) { var img = document.createElement('img'); img.src = c.photo; img.alt = c.title || ''; parts.push(img); }
+      if (c.title) parts.push(el('h1', c.title));
+      if (c.text) parts.push(el('p', c.text));
+      if (url) { var a = el('a', c.button || 'Ouvrir', 'go'); a.href = url; parts.push(a); }
+      if (!parts.length) parts.push(el('p', 'Rien à afficher pour le moment.', 'muted'));
+      app.replaceChildren.apply(app, parts);
+    })
+    .catch(function () { app.replaceChildren(el('p', 'Page indisponible. Réessaie dans un instant.', 'muted')); });
+})();
+</script>
+</body>
+</html>
