@@ -1,0 +1,523 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Studio</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Instrument+Sans:wght@400;500;600&display=swap">
+<style>
+  :root { color-scheme: light; --bg: #EDF0F5; --surface: #FFFFFF; --fg: #121A26; --muted: #566274; --line: #CDD5E0; --accent: #2F4BFF; --on-accent: #FFFFFF; --danger: #C2310C; --ok: #167A45; }
+  @media (prefers-color-scheme: dark) { :root { color-scheme: dark; --bg: #0D1117; --surface: #161C25; --fg: #E7ECF3; --muted: #97A3B6; --line: #2A3441; --accent: #8A9AFF; --on-accent: #0D1117; --danger: #FF8A6B; --ok: #4ADE80; } }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: var(--bg); color: var(--fg); font: 400 15px/1.5 "Instrument Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  [hidden] { display: none !important; }
+  h1, h2 { font-family: "Bricolage Grotesque", system-ui, sans-serif; margin: 0; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  .login { min-height: 100svh; display: grid; place-items: center; padding: 16px; }
+  .login form { width: 100%; max-width: 22rem; display: flex; flex-direction: column; gap: 12px; padding: 24px; border-radius: 20px; background: var(--surface); border: 1.5px solid var(--line); }
+  .login h1 { font-size: 1.8rem; }
+  .msg-err { margin: 0; min-height: 1.3em; color: var(--danger); font-size: .9rem; }
+
+  .top { position: sticky; top: 0; z-index: 20; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 16px; padding-top: max(10px, env(safe-area-inset-top)); background: var(--surface); border-bottom: 1.5px solid var(--line); }
+  .top h1 { font-size: 1.3rem; margin-right: auto; }
+  .dirty { font-size: .85rem; color: var(--danger); }
+  .dirty.ok { color: var(--ok); }
+  .tabs { display: none; }
+  .layout { display: grid; grid-template-columns: minmax(0, 460px) minmax(0, 1fr); gap: 20px; padding: 16px; max-width: 1200px; margin: 0 auto; align-items: start; }
+  #controls { display: flex; flex-direction: column; gap: 12px; min-width: 0; padding-bottom: 80px; }
+  #previewWrap { position: sticky; top: 76px; display: flex; justify-content: center; }
+  .phone { width: 390px; max-width: 100%; height: min(780px, calc(100svh - 110px)); border: 10px solid #0b0f15; border-radius: 36px; overflow: hidden; background: #000; box-shadow: 0 10px 40px rgba(0, 0, 0, .25); }
+  .phone iframe { width: 100%; height: 100%; border: 0; display: block; }
+
+  details.card { background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px; }
+  details.card > summary { cursor: pointer; padding: 14px 16px; font: 800 1.05rem "Bricolage Grotesque", system-ui, sans-serif; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+  details.card > summary::-webkit-details-marker { display: none; }
+  details.card > summary::after { content: "+"; font-size: 1.3rem; color: var(--muted); }
+  details.card[open] > summary::after { content: "–"; }
+  .cbody { display: flex; flex-direction: column; gap: 14px; padding: 0 16px 16px; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .field > label { font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .hint { margin: 0; font-size: .85rem; color: var(--muted); }
+  input[type="text"], input[type="email"], input[type="password"], input[type="datetime-local"], textarea, select {
+    width: 100%; padding: 11px 12px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--fg); font: 400 1rem "Instrument Sans", system-ui, sans-serif;
+  }
+  textarea { min-height: 84px; resize: vertical; }
+  input[type="color"] { width: 64px; height: 42px; padding: 2px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--bg); cursor: pointer; }
+  input[type="range"] { flex: 1; min-width: 0; accent-color: var(--accent); }
+  .rng { display: flex; align-items: center; gap: 12px; }
+  .rng output { min-width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+  .stack { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; }
+  .seg { display: flex; flex-wrap: wrap; gap: 6px; }
+  .seg button { flex: 1 1 auto; min-height: 42px; padding: 0 12px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--fg); font: 600 .95rem "Instrument Sans", system-ui, sans-serif; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .tog { display: flex; align-items: center; gap: 10px; min-height: 40px; cursor: pointer; font-weight: 500; }
+  .tog input { width: 22px; height: 22px; accent-color: var(--accent); }
+  .btn { min-height: 42px; padding: 0 16px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg); font: 600 .95rem "Instrument Sans", system-ui, sans-serif; cursor: pointer; }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .btn.ghost { background: transparent; }
+  .btn.danger { color: var(--danger); }
+  .btn[disabled] { opacity: .55; cursor: default; }
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; }
+  .linkrow { display: flex; flex-direction: column; gap: 6px; padding: 10px; border: 1.5px solid var(--line); border-radius: 12px; }
+  .thumb { max-width: 100%; max-height: 140px; border-radius: 10px; object-fit: cover; align-self: flex-start; }
+  .msgrow { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; padding: 8px 10px; border: 1.5px solid var(--line); border-radius: 10px; overflow-wrap: anywhere; }
+  .msgrow p { margin: 2px 0 0; font-size: .9rem; }
+
+  .modal { position: fixed; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; padding: 16px; background: rgba(0, 0, 0, .55); }
+  .mbox { width: 100%; max-width: 640px; max-height: 88svh; overflow: auto; display: flex; flex-direction: column; gap: 12px; padding: 16px; border-radius: 18px; background: var(--surface); }
+  .mhead { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .tile { display: flex; flex-direction: column; gap: 6px; padding: 8px; border: 1.5px solid var(--line); border-radius: 12px; min-width: 0; }
+  .tile .pic { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; background: var(--bg); display: grid; place-items: center; color: var(--muted); font-size: 1.6rem; }
+  .tile .nm { font-size: .8rem; color: var(--muted); overflow-wrap: anywhere; }
+  .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); z-index: 80; max-width: calc(100% - 32px); padding: 12px 18px; border-radius: 12px; background: var(--fg); color: var(--bg); font-weight: 500; }
+
+  @media (max-width: 899px) {
+    .layout { grid-template-columns: minmax(0, 1fr); padding: 12px; }
+    .tabs { display: flex; gap: 8px; padding: 8px 12px; background: var(--bg); position: sticky; top: 58px; z-index: 15; }
+    .tabs button { flex: 1; min-height: 42px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg); font: 600 .95rem "Instrument Sans", system-ui, sans-serif; cursor: pointer; }
+    .tabs button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+    #previewWrap { display: none; position: static; }
+    body.pv #previewWrap { display: flex; }
+    body.pv #controls { display: none; }
+    .phone { width: 100%; height: calc(100svh - 190px); border-width: 6px; border-radius: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="login" id="login" hidden>
+  <form id="loginForm">
+    <h1>Studio</h1>
+    <p class="hint">Connecte-toi pour changer ce que ton QR code affiche.</p>
+    <input id="email" type="email" autocomplete="username" placeholder="Adresse mail" aria-label="Adresse mail" required>
+    <input id="pw" type="password" autocomplete="current-password" placeholder="Mot de passe" aria-label="Mot de passe" required>
+    <p class="msg-err" id="loginErr" role="alert"></p>
+    <button class="btn primary" type="submit" id="loginBtn">Se connecter</button>
+  </form>
+</div>
+
+<div id="studio" hidden>
+  <header class="top">
+    <h1>Studio</h1>
+    <span class="dirty" id="dirty" role="status"></span>
+    <a class="btn" href="index.html" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;text-decoration:none">Voir la page</a>
+    <button class="btn ghost" id="logout" type="button">Déconnexion</button>
+    <button class="btn primary" id="publish" type="button">Publier</button>
+  </header>
+  <div class="tabs">
+    <button type="button" id="tabCtl" aria-pressed="true">Réglages</button>
+    <button type="button" id="tabPv" aria-pressed="false">Aperçu</button>
+  </div>
+  <div class="layout">
+    <main id="controls"></main>
+    <aside id="previewWrap"><div class="phone"><iframe id="pv" src="index.html?preview=1" title="Aperçu de ta page"></iframe></div></aside>
+  </div>
+</div>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script src="shared.js"></script>
+<script>
+(function () {
+  'use strict';
+  const Q = window.QR;
+  const $ = (s) => document.querySelector(s);
+  function el(tag, props, ...kids) {
+    const n = document.createElement(tag);
+    for (const k in (props || {})) {
+      const v = props[k];
+      if (v == null || v === false) continue;
+      if (k === 'class') n.className = v;
+      else if (k === 'text') n.textContent = v;
+      else if (k === 'style') Object.assign(n.style, v);
+      else n.setAttribute(k, v === true ? '' : v);
+    }
+    kids.flat().forEach((c) => { if (c != null && c !== false) n.append(c.nodeType ? c : document.createTextNode(c)); });
+    return n;
+  }
+  function debounce(fn, ms) { let t; return () => { clearTimeout(t); t = setTimeout(fn, ms); }; }
+
+  /* ---------- connexion ---------- */
+  const SESS = 'qr_sess';
+  let sess = null;
+  try { sess = JSON.parse(localStorage.getItem(SESS)); } catch (e) {}
+  function saveSess(s) { sess = s; try { s ? localStorage.setItem(SESS, JSON.stringify(s)) : localStorage.removeItem(SESS); } catch (e) {} }
+  function authReq(path, body) {
+    return fetch(Q.SB_URL + '/auth/v1/' + path, { method: 'POST', headers: { apikey: Q.SB_KEY, 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+      .then((r) => r.json().catch(() => ({})).then((j) => { if (!r.ok) throw new Error(j.error_description || j.msg || j.message || 'Erreur'); return j; }));
+  }
+  function toSess(j) { return { access: j.access_token, refresh: j.refresh_token, exp: Date.now() + (j.expires_in || 3600) * 1000 }; }
+  function token() {
+    if (!sess) return Promise.reject(new Error('Non connecté'));
+    if (Date.now() < sess.exp - 60000) return Promise.resolve(sess.access);
+    return authReq('token?grant_type=refresh_token', { refresh_token: sess.refresh })
+      .then((j) => { saveSess(toSess(j)); return sess.access; })
+      .catch((e) => { saveSess(null); showLogin('Session expirée, reconnecte-toi.'); throw e; });
+  }
+  const adm = (path, opts) => token().then((t) => Q.rest(path, opts, t));
+  function storage(path, opts) {
+    return token().then((t) => {
+      opts.headers = Object.assign({ apikey: Q.SB_KEY, Authorization: 'Bearer ' + t }, opts.headers || {});
+      return fetch(Q.SB_URL + '/storage/v1/' + path, opts).then((r) => {
+        if (!r.ok) return r.text().then((x) => { const e = new Error(x || ('HTTP ' + r.status)); e.status = r.status; throw e; });
+        return r.json().catch(() => null);
+      });
+    });
+  }
+  function errMsg(e) {
+    const m = String((e && e.message) || e || '');
+    if (/Invalid login/i.test(m)) return 'Adresse mail ou mot de passe incorrect.';
+    if (/row-level security|42501|not allowed|Unauthorized|403|401|JWT/i.test(m)) return 'Ce compte n’a pas le droit de modifier la page, ou la session a expiré. Reconnecte-toi avec le compte administrateur.';
+    if (/exceeded the maximum|too large|413/i.test(m)) return 'Ce fichier est trop lourd (50 Mo maximum). Pour une longue vidéo, mets-la sur YouTube et colle le lien.';
+    if (/abort|Failed to fetch|NetworkError|Réseau/i.test(m)) return 'Connexion impossible. Vérifie ta connexion internet, ou que ton projet Supabase n’est pas en pause.';
+    return 'Une erreur est survenue : ' + m.slice(0, 160);
+  }
+
+  let toastT;
+  function flash(msg) {
+    const t = $('#toast'); t.textContent = msg; t.hidden = false;
+    clearTimeout(toastT); toastT = setTimeout(() => { t.hidden = true; }, 5000);
+  }
+  function showLogin(msg) {
+    $('#studio').hidden = true; $('#login').hidden = false; $('#loginErr').textContent = msg || '';
+  }
+  $('#loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const b = $('#loginBtn'); b.disabled = true; $('#loginErr').textContent = '';
+    authReq('token?grant_type=password', { email: $('#email').value.trim(), password: $('#pw').value })
+      .then((j) => { saveSess(toSess(j)); $('#pw').value = ''; enter(); })
+      .catch((err) => { $('#loginErr').textContent = errMsg(err); })
+      .then(() => { b.disabled = false; });
+  });
+  $('#logout').addEventListener('click', () => { saveSess(null); showLogin(''); });
+
+  /* ---------- état ---------- */
+  let cfg = Q.config({});
+  let dirty = false;
+  const openSet = new Set(['Que fait ton QR code ?']);
+  const get = (p) => p.split('.').reduce((o, k) => (o == null ? o : o[k]), cfg);
+  function set(p, v) {
+    const ks = p.split('.'); let o = cfg;
+    for (let i = 0; i < ks.length - 1; i++) o = o[ks[i]];
+    o[ks[ks.length - 1]] = v; changed();
+  }
+  function setDirty(d) {
+    dirty = d;
+    const s = $('#dirty'); s.className = 'dirty';
+    s.textContent = d ? 'Modifications non publiées' : '';
+  }
+  function changed() { setDirty(true); schedulePreview(); }
+  window.addEventListener('beforeunload', (e) => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
+
+  /* ---------- aperçu ---------- */
+  const pv = $('#pv'); let pvReady = false;
+  function sendPreview() { if (pvReady && pv.contentWindow) pv.contentWindow.postMessage({ type: 'cfg', cfg: cfg }, location.origin); }
+  const schedulePreview = debounce(sendPreview, 120);
+  window.addEventListener('message', (e) => {
+    if (e.origin !== location.origin) return;
+    if (e.data && e.data.type === 'ready') { pvReady = true; sendPreview(); }
+  });
+  $('#tabCtl').addEventListener('click', () => { document.body.classList.remove('pv'); $('#tabCtl').setAttribute('aria-pressed', 'true'); $('#tabPv').setAttribute('aria-pressed', 'false'); });
+  $('#tabPv').addEventListener('click', () => { document.body.classList.add('pv'); $('#tabPv').setAttribute('aria-pressed', 'true'); $('#tabCtl').setAttribute('aria-pressed', 'false'); sendPreview(); });
+
+  /* ---------- composants de formulaire ---------- */
+  const field = (label, ctrl, hint) => el('div', { class: 'field' }, el('label', { text: label }), ctrl, hint ? el('p', { class: 'hint', text: hint }) : null);
+  function card(title, ...kids) {
+    const d = el('details', { class: 'card' });
+    if (openSet.has(title)) d.open = true;
+    d.append(el('summary', { text: title }), el('div', { class: 'cbody' }, ...kids));
+    d.addEventListener('toggle', () => { d.open ? openSet.add(title) : openSet.delete(title); });
+    return d;
+  }
+  function txt(p, label, o = {}) {
+    const i = el(o.multi ? 'textarea' : 'input', { type: o.multi ? null : 'text', 'aria-label': label, placeholder: o.ph || '', maxlength: o.max || null });
+    i.value = get(p) || '';
+    i.addEventListener('input', () => set(p, i.value));
+    return field(label, i, o.hint);
+  }
+  function rng(p, label, min, max, step, unit) {
+    const i = el('input', { type: 'range', min, max, step, 'aria-label': label });
+    const out = el('output');
+    const upd = () => { out.textContent = (+i.value) + (unit || ''); };
+    i.value = get(p); upd();
+    i.addEventListener('input', () => { set(p, +i.value); upd(); });
+    return field(label, el('div', { class: 'rng' }, i, out));
+  }
+  function col(p, label) {
+    const i = el('input', { type: 'color', 'aria-label': label });
+    i.value = get(p) || '#000000';
+    i.addEventListener('input', () => set(p, i.value));
+    return field(label, i);
+  }
+  function seg(p, label, opts, rebuild) {
+    const w = el('div', { class: 'seg', role: 'group', 'aria-label': label });
+    opts.forEach(([v, l]) => {
+      const b = el('button', { type: 'button', text: l, 'aria-pressed': String(get(p) === v) });
+      b.addEventListener('click', () => {
+        set(p, v);
+        [...w.children].forEach((c) => c.setAttribute('aria-pressed', String(c === b)));
+        if (rebuild) build();
+      });
+      w.append(b);
+    });
+    return field(label, w);
+  }
+  function tog(p, label, rebuild) {
+    const i = el('input', { type: 'checkbox' });
+    i.checked = !!get(p);
+    i.addEventListener('change', () => { set(p, i.checked); if (rebuild) build(); });
+    return el('label', { class: 'tog' }, i, el('span', { text: label }));
+  }
+  function sel(p, label, opts) {
+    const s = el('select', { 'aria-label': label });
+    opts.forEach(([v, l, f]) => { const o = el('option', { value: v, text: l }); if (f) o.style.fontFamily = f; s.append(o); });
+    s.value = get(p);
+    s.addEventListener('change', () => set(p, s.value));
+    return field(label, s);
+  }
+  function btn(text, cls, fn) { const b = el('button', { type: 'button', class: 'btn ' + (cls || ''), text }); b.addEventListener('click', fn); return b; }
+
+  function thumb(kind, path) {
+    const src = Q.mediaUrl(path);
+    if (!src) return null;
+    if (kind === 'image') return el('img', { class: 'thumb', src, alt: '' });
+    if (kind === 'audio') return el('audio', { controls: true, src, preload: 'none', style: { width: '100%' } });
+    if (Q.ytId(path)) return el('p', { class: 'hint', text: 'Vidéo YouTube' });
+    return el('video', { class: 'thumb', src, muted: true, preload: 'metadata' });
+  }
+  function media(p, label, kind) {
+    const i = el('input', { type: 'text', 'aria-label': label, placeholder: kind === 'video' ? 'Choisis un fichier ou colle un lien YouTube' : 'Choisis un fichier' });
+    i.value = get(p) || '';
+    i.addEventListener('input', () => set(p, i.value.trim()));
+    const pick = btn('Choisir ou envoyer un fichier', '', () => openPicker(kind, (path) => { set(p, path); build(); }));
+    const clear = btn('Retirer', 'ghost', () => { set(p, ''); build(); });
+    return field(label, el('div', { class: 'stack' }, thumb(kind, get(p)), i, el('div', { class: 'row' }, pick, clear)));
+  }
+
+  /* ---------- fichiers (photos, vidéos, musiques) ---------- */
+  const slug = (n) => n.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9.]+/g, '-').replace(/^-+|-+$/g, '').slice(-60) || 'fichier';
+  function prepImage(file) {
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return Promise.resolve(file);
+    return new Promise((res) => {
+      const url = URL.createObjectURL(file), im = new Image();
+      im.onload = () => {
+        const w = im.naturalWidth, h = im.naturalHeight, s = Math.min(1, 2000 / Math.max(w, h));
+        if (s === 1 && file.size < 1.5e6) { URL.revokeObjectURL(url); return res(file); }
+        const c = document.createElement('canvas'); c.width = Math.round(w * s); c.height = Math.round(h * s);
+        c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+        const png = file.type === 'image/png';
+        c.toBlob((b) => {
+          URL.revokeObjectURL(url);
+          res(b ? new File([b], file.name.replace(/\.\w+$/, '') + (png ? '.png' : '.jpg'), { type: png ? 'image/png' : 'image/jpeg' }) : file);
+        }, png ? 'image/png' : 'image/jpeg', 0.86);
+      };
+      im.onerror = () => { URL.revokeObjectURL(url); res(file); };
+      im.src = url;
+    });
+  }
+  function uploadFile(file, onProg) {
+    return token().then((t) => new Promise((res, rej) => {
+      const path = Date.now().toString(36) + '-' + slug(file.name);
+      const x = new XMLHttpRequest();
+      x.open('POST', Q.SB_URL + '/storage/v1/object/media/' + encodeURIComponent(path));
+      x.setRequestHeader('apikey', Q.SB_KEY);
+      x.setRequestHeader('Authorization', 'Bearer ' + t);
+      x.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
+      x.setRequestHeader('x-upsert', 'false');
+      x.upload.onprogress = (e) => { if (e.lengthComputable && onProg) onProg(e.loaded / e.total); };
+      x.onload = () => (x.status >= 200 && x.status < 300 ? res(path) : rej(new Error(x.responseText || ('HTTP ' + x.status))));
+      x.onerror = () => rej(new Error('Réseau'));
+      x.send(file);
+    }));
+  }
+  const listFiles = () => storage('object/list/media', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ prefix: '', limit: 200, offset: 0, sortBy: { column: 'created_at', order: 'desc' } }) })
+    .then((items) => (items || []).filter((it) => it.id));
+
+  function openPicker(kind, onPick) {
+    const accept = { image: 'image/*', video: 'video/*', audio: 'audio/*' }[kind] || 'image/*,video/*,audio/*';
+    const back = el('div', { class: 'modal', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Mes fichiers' });
+    const grid = el('div', { class: 'grid' }), status = el('p', { class: 'hint', role: 'status' });
+    const file = el('input', { type: 'file', accept, hidden: true });
+    const up = btn('Envoyer un fichier', 'primary', () => file.click());
+    const close = btn('Fermer', 'ghost', () => back.remove());
+    back.append(el('div', { class: 'mbox' }, el('div', { class: 'mhead' }, el('h2', { text: onPick ? 'Choisir un fichier' : 'Mes fichiers' }), close), el('div', { class: 'row' }, up), status, grid, file));
+    back.addEventListener('click', (e) => { if (e.target === back) back.remove(); });
+    document.body.append(back);
+
+    function refresh() {
+      status.textContent = 'Chargement…';
+      listFiles().then((items) => {
+        status.textContent = ''; grid.replaceChildren();
+        const shown = items.filter((it) => !kind || (((it.metadata || {}).mimetype) || '').startsWith(kind + '/'));
+        if (!shown.length) status.textContent = 'Aucun fichier pour le moment. Envoie-en un avec le bouton ci-dessus.';
+        shown.forEach((it) => {
+          const mt = ((it.metadata || {}).mimetype) || '';
+          const src = Q.mediaUrl(it.name);
+          const pic = mt.startsWith('image/') ? el('img', { class: 'pic', src, alt: '' }) : el('div', { class: 'pic', text: mt.startsWith('video/') ? '🎬' : '🎵' });
+          const tile = el('div', { class: 'tile' }, pic, el('div', { class: 'nm', text: it.name.replace(/^[a-z0-9]+-/, '') }));
+          if (onPick) tile.append(btn('Choisir', 'primary', () => { back.remove(); onPick(it.name); }));
+          tile.append(btn('Supprimer', 'danger ghost', () => {
+            if (!confirm('Supprimer ce fichier ? S’il est utilisé sur ta page, il n’apparaîtra plus.')) return;
+            storage('object/media/' + encodeURIComponent(it.name), { method: 'DELETE' }).then(refresh).catch((e) => { status.textContent = errMsg(e); });
+          }));
+          grid.append(tile);
+        });
+      }).catch((e) => { status.textContent = errMsg(e); });
+    }
+    file.addEventListener('change', () => {
+      const f = file.files[0]; file.value = '';
+      if (!f) return;
+      status.textContent = 'Préparation…';
+      prepImage(f).then((ff) => {
+        if (ff.size > 50 * 1024 * 1024) throw new Error('413 exceeded the maximum');
+        return uploadFile(ff, (p) => { status.textContent = 'Envoi… ' + Math.round(p * 100) + ' %'; });
+      }).then((path) => { if (onPick) { back.remove(); onPick(path); } else { status.textContent = 'Fichier envoyé.'; refresh(); } })
+        .catch((e) => { status.textContent = errMsg(e); });
+    });
+    refresh();
+  }
+
+  /* ---------- modèles ---------- */
+  const PRESETS = [
+    ['Clip', { mode: 'page', layout: 'full', bg: { type: 'gradient', color: '#0D1117', color2: '#8A2F7A', angle: 160 }, text: { title: 'Mon nouveau clip', body: 'Disponible maintenant', font: 'Anton', size: 72, pos: 'bottom', align: 'left', color: '#ffffff' }, button: { show: true, label: 'Regarder', bg: '#ffffff', color: '#111111' } }],
+    ['Soirée', { mode: 'page', layout: 'full', bg: { type: 'gradient', color: '#1B0A3C', color2: '#FF2D95', angle: 200 }, text: { title: 'Soirée samedi', body: 'Rendez-vous chez moi, 21 h', font: 'Monoton', size: 56, pos: 'center', align: 'center', color: '#ffffff' }, countdown: { on: true, label: 'Dans', date: '' }, button: { show: false } }],
+    ['Carte de visite', { mode: 'page', layout: 'card', bg: { type: 'color', color: '#E4EBF5' }, text: { title: 'Ton nom', body: 'Ce que tu fais', font: 'Playfair Display', size: 48, pos: 'center', align: 'center', color: '#121A26', shadow: false }, button: { show: false }, links: [{ label: 'Instagram', url: '' }, { label: 'TikTok', url: '' }, { label: 'Me contacter', url: '' }] }],
+    ['Mur de dessin', { mode: 'page', bg: { type: 'gradient', color: '#0D1117', color2: '#2F4BFF', angle: 160 }, text: { title: '' }, button: { show: false }, draw: { on: true, only: true, title: 'Dessine sur le mur' } }],
+    ['Livre d’or', { mode: 'page', layout: 'full', bg: { type: 'gradient', color: '#0F2A22', color2: '#1B6B4A', angle: 160 }, text: { title: 'Livre d’or', body: 'Laisse-moi un petit mot', pos: 'top', align: 'center', color: '#ffffff' }, button: { show: false }, guestbook: { on: true, title: 'Laisse un mot' } }]
+  ];
+
+  /* ---------- panneau de réglages ---------- */
+  const FONT_OPTS = () => Q.FONTS.map((f) => [f[0], f[0], Q.fontStack(f[0])]);
+  function linksUI() {
+    const box = el('div', { class: 'stack' });
+    cfg.links.forEach((l, i) => {
+      const a = el('input', { type: 'text', placeholder: 'Texte (ex : Instagram)', 'aria-label': 'Texte du lien' });
+      a.value = l.label || ''; a.addEventListener('input', () => { l.label = a.value; changed(); });
+      const b = el('input', { type: 'text', placeholder: 'https://…', 'aria-label': 'Adresse du lien' });
+      b.value = l.url || ''; b.addEventListener('input', () => { l.url = b.value; changed(); });
+      box.append(el('div', { class: 'linkrow' }, a, b, btn('Supprimer ce lien', 'ghost', () => { cfg.links.splice(i, 1); changed(); build(); })));
+    });
+    box.append(btn('+ Ajouter un lien', '', () => { cfg.links.push({ label: '', url: '' }); changed(); build(); }));
+    return box;
+  }
+  function messagesUI() {
+    const list = el('div', { class: 'stack' });
+    const show = btn('Voir les messages du livre d’or', '', () => {
+      Q.rest('messages?select=id,name,body,created_at&order=id.desc&limit=50').then((rows) => {
+        list.replaceChildren();
+        if (!rows.length) list.append(el('p', { class: 'hint', text: 'Aucun message pour le moment.' }));
+        rows.forEach((m) => {
+          const row = el('div', { class: 'msgrow' }, el('div', null, el('b', { text: m.name || 'Anonyme' }), el('p', { text: m.body })),
+            btn('Supprimer', 'danger ghost', () => adm('messages?id=eq.' + m.id, { method: 'DELETE' }).then(() => row.remove()).catch((e) => flash(errMsg(e)))));
+          list.append(row);
+        });
+      }).catch((e) => flash(errMsg(e)));
+    });
+    return el('div', { class: 'stack' }, show, list);
+  }
+
+  function build() {
+    const root = $('#controls'); root.replaceChildren();
+    const m = cfg.mode;
+
+    const presets = el('div', { class: 'presets' }, PRESETS.map(([n, d]) => btn(n, '', () => {
+      if (dirty && !confirm('Remplacer tes réglages actuels par ce modèle ?')) return;
+      cfg = Q.config(Object.assign({}, d, { mode: 'page' })); changed(); build();
+    })));
+    root.append(card('Que fait ton QR code ?',
+      seg('mode', 'Mode', [['page', 'Page personnalisée'], ['redirect', 'Redirection directe']], true),
+      m === 'redirect' ? txt('url', 'Adresse vers laquelle il mène', { ph: 'https://…', hint: 'Quand on scanne, on arrive tout de suite sur ce lien, sans page intermédiaire.' }) : null,
+      m === 'page' ? field('Modèles de départ', presets, 'Un clic pour partir d’un exemple, puis tu changes tout ce que tu veux.') : null));
+
+    if (m === 'page') {
+      const bt = cfg.bg.type;
+      root.append(card('Fond',
+        seg('bg.type', 'Type de fond', [['color', 'Couleur'], ['gradient', 'Dégradé'], ['image', 'Photo'], ['video', 'Vidéo']], true),
+        bt === 'color' ? col('bg.color', 'Couleur du fond') : null,
+        bt === 'gradient' ? [col('bg.color', 'Première couleur'), col('bg.color2', 'Deuxième couleur'), rng('bg.angle', 'Direction', 0, 360, 5, '°')] : null,
+        bt === 'image' ? media('bg.media', 'Photo', 'image') : null,
+        bt === 'video' ? media('bg.media', 'Vidéo (fichier ou lien YouTube)', 'video') : null,
+        (bt === 'image' || bt === 'video') ? [
+          seg('layout', 'Présentation', [['full', 'Texte par-dessus le fond'], ['card', 'Dans un cadre, texte dessous']], true),
+          cfg.layout === 'full' ? [rng('bg.overlay', 'Voile sur le fond', 0, 0.9, 0.05), col('bg.overlayColor', 'Couleur du voile')] : col('bg.color', 'Couleur derrière le cadre')
+        ] : null));
+
+      root.append(card('Texte',
+        txt('text.title', 'Titre', { max: 80 }),
+        txt('text.body', 'Texte', { multi: true, max: 400 }),
+        sel('text.font', 'Police du titre', FONT_OPTS()),
+        sel('text.bodyFont', 'Police du texte', FONT_OPTS()),
+        rng('text.size', 'Taille du titre', 20, 120, 2, ' px'),
+        rng('text.bodySize', 'Taille du texte', 12, 48, 1, ' px'),
+        col('text.color', 'Couleur du texte'),
+        seg('text.pos', 'Position verticale', [['top', 'Haut'], ['center', 'Milieu'], ['bottom', 'Bas']]),
+        seg('text.align', 'Alignement', [['left', 'Gauche'], ['center', 'Centre'], ['right', 'Droite']]),
+        tog('text.shadow', 'Ombre derrière le texte (plus lisible)')));
+
+      root.append(card('Bouton et liens',
+        tog('button.show', 'Afficher un gros bouton', true),
+        cfg.button.show ? [txt('button.label', 'Texte du bouton', { max: 30 }), txt('button.url', 'Adresse du bouton', { ph: 'https://…' }), col('button.bg', 'Couleur du bouton'), col('button.color', 'Couleur du texte du bouton')] : null,
+        field('Autres liens', linksUI(), 'Instagram, TikTok, site… ils s’affichent sous le bouton.')));
+
+      root.append(card('Musique',
+        media('music.src', 'Musique de fond', 'audio'),
+        rng('music.volume', 'Volume', 0, 1, 0.05),
+        txt('music.gate', 'Message avant le démarrage', { max: 60, hint: 'Les téléphones interdisent le son automatique : la personne touche l’écran, puis la musique démarre.' })));
+
+      root.append(card('Modules',
+        tog('draw.on', 'Mur de dessin partagé', true),
+        cfg.draw.on ? [
+          tog('draw.only', 'Page entière de dessin (cache le texte)'),
+          txt('draw.title', 'Titre du mur', { max: 60 }),
+          col('draw.paper', 'Couleur du papier'),
+          btn('Effacer tous les dessins', 'danger', () => {
+            if (!confirm('Effacer tous les dessins du mur ? Cette action est définitive.')) return;
+            adm('drawings?id=gt.0', { method: 'DELETE' }).then(() => flash('Le mur est vide.')).catch((e) => flash(errMsg(e)));
+          })
+        ] : null,
+        tog('guestbook.on', 'Livre d’or', true),
+        cfg.guestbook.on ? [txt('guestbook.title', 'Titre du livre d’or', { max: 60 }), messagesUI()] : null,
+        tog('countdown.on', 'Compte à rebours', true),
+        cfg.countdown.on ? [txt('countdown.label', 'Texte au-dessus', { max: 60, ph: 'Dans' }), (() => {
+          const i = el('input', { type: 'datetime-local', 'aria-label': 'Date et heure' }); i.value = cfg.countdown.date || '';
+          i.addEventListener('input', () => set('countdown.date', i.value)); return field('Date et heure', i);
+        })()] : null));
+    }
+    root.append(card('Mes fichiers', el('p', { class: 'hint', text: 'Toutes tes photos, vidéos et musiques envoyées.' }), btn('Ouvrir mes fichiers', '', () => openPicker(null, null))));
+  }
+
+  /* ---------- publier ---------- */
+  $('#publish').addEventListener('click', () => {
+    const b = $('#publish'); b.disabled = true; b.textContent = 'Publication…';
+    adm('page?on_conflict=id', { method: 'POST', headers: { 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates,return=minimal' }, body: JSON.stringify({ id: 1, config: cfg, updated_at: new Date().toISOString() }) })
+      .then(() => {
+        setDirty(false);
+        try { localStorage.setItem('qr_cfg', JSON.stringify(cfg)); } catch (e) {}
+        const s = $('#dirty'); s.className = 'dirty ok'; s.textContent = 'Publié ✓';
+        flash('C’est publié : ton QR code affiche déjà la nouvelle version.');
+      })
+      .catch((e) => flash(errMsg(e)))
+      .then(() => { b.disabled = false; b.textContent = 'Publier'; });
+  });
+
+  /* ---------- démarrage ---------- */
+  function enter() {
+    $('#login').hidden = true; $('#studio').hidden = false;
+    Q.loadFonts(Q.FONTS.map((f) => f[0]));
+    Q.fetchConfig().catch(() => Q.fallbackConfig())
+      .then((c) => { cfg = Q.config(c); })
+      .catch(() => { cfg = Q.config({}); flash('Impossible de lire la page actuelle : tu pars d’une page vide.'); })
+      .then(() => { setDirty(false); build(); sendPreview(); });
+  }
+  if (sess) token().then(enter).catch(() => showLogin(''));
+  else showLogin('');
+})();
+</script>
+</body>
+</html>
