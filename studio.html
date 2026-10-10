@@ -736,9 +736,11 @@
 
       root.append(card('Apparence des modules',
         el('p', { class: 'hint', text: 'Les cartes du dessin et du livre d’or (et leurs languettes).' }),
-        col('modStyle.bg', 'Couleur de la carte'),
+        seg('modStyle.fill', 'Style de la carte', [['solid', 'Carte pleine'], ['outline', 'Contour seulement']], true),
+        col('modStyle.bg', cfg.modStyle.fill === 'outline' ? 'Couleur du contour' : 'Couleur de la carte'),
         col('modStyle.color', 'Couleur du texte'),
-        rng('modStyle.opacity', 'Opacité du fond de la carte (le texte reste net)', 0, 1, 0.05),
+        cfg.modStyle.fill === 'outline' ? null : rng('modStyle.opacity', 'Opacité du fond (le texte reste net)', 0, 1, 0.05),
+        rng('modStyle.all', 'Opacité de toute la carte (texte compris)', 0.2, 1, 0.05),
         rng('modStyle.radius', 'Arrondi des coins', 0, 40, 2, ' px')));
     }
     root.append(card('Mes fichiers', el('p', { class: 'hint', text: 'Toutes tes photos, vidéos et musiques envoyées.' }), btn('Ouvrir mes fichiers', '', () => openPicker(null, null))));

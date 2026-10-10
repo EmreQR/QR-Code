@@ -41,7 +41,7 @@
     button: { show: true, label: 'Ouvrir', url: '', bg: '#ffffff', color: '#111111' }, // ancien format, converti en "buttons"
     links: [],                                                                       // ancien format, converti en "buttons"
     buttons: null,           // liste de boutons (voir BTN_DEFAULT)
-    modStyle: { bg: '#ffffff', color: '#121A26', radius: 20, opacity: 0.95 },
+    modStyle: { bg: '#ffffff', color: '#121A26', radius: 20, opacity: 0.95, fill: 'solid', all: 1 },
     music: { src: '', volume: 0.6, gate: 'Touche pour entrer' },
     draw: { on: false, only: false, title: 'Dessine ici', paper: '#ffffff', size: 3000, place: 'bottom' },
     guestbook: { on: false, title: 'Livre d’or', place: 'bottom' },
