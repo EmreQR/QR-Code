@@ -7,8 +7,10 @@
 <title>Studio</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;800&family=Instrument+Sans:wght@400;500;600&display=swap">
 <style>
-  :root { color-scheme: light; --bg: #EDF0F5; --surface: #FFFFFF; --fg: #121A26; --muted: #566274; --line: #CDD5E0; --accent: #2F4BFF; --on-accent: #FFFFFF; --danger: #C2310C; --ok: #167A45; }
-  @media (prefers-color-scheme: dark) { :root { color-scheme: dark; --bg: #0D1117; --surface: #161C25; --fg: #E7ECF3; --muted: #97A3B6; --line: #2A3441; --accent: #8A9AFF; --on-accent: #0D1117; --danger: #FF8A6B; --ok: #4ADE80; } }
+  :root { color-scheme: light; --r: 16px; --bg: #EDF0F5; --surface: #FFFFFF; --fg: #121A26; --muted: #566274; --line: #CDD5E0; --accent: #2F4BFF; --on-accent: #FFFFFF; --danger: #C2310C; --ok: #167A45; }
+  @media (prefers-color-scheme: dark) { :root:not([data-mode]) { color-scheme: dark; --bg: #0D1117; --surface: #161C25; --fg: #E7ECF3; --muted: #97A3B6; --line: #2A3441; --accent: #8A9AFF; --on-accent: #0D1117; --danger: #FF8A6B; --ok: #4ADE80; } }
+  :root[data-mode="light"] { color-scheme: light; }
+  :root[data-mode="dark"] { color-scheme: dark; --danger: #FF8A6B; --ok: #4ADE80; }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
   body { background: var(--bg); color: var(--fg); font: 400 15px/1.5 "Instrument Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
@@ -17,12 +19,13 @@
   :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
   .login { min-height: 100svh; display: grid; place-items: center; padding: 16px; }
-  .login form { width: 100%; max-width: 22rem; display: flex; flex-direction: column; gap: 12px; padding: 24px; border-radius: 20px; background: var(--surface); border: 1.5px solid var(--line); }
+  .login form { width: 100%; max-width: 22rem; display: flex; flex-direction: column; gap: 12px; padding: 24px; border-radius: var(--r); background: var(--surface); border: 1.5px solid var(--line); }
   .login h1 { font-size: 1.8rem; }
   .msg-err { margin: 0; min-height: 1.3em; color: var(--danger); font-size: .9rem; }
 
   .top { position: sticky; top: 0; z-index: 20; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; padding: 10px 16px; padding-top: max(10px, env(safe-area-inset-top)); background: var(--surface); border-bottom: 1.5px solid var(--line); }
   .top h1 { font-size: 1.3rem; margin-right: auto; }
+  .top .btn { white-space: nowrap; }
   .dirty { font-size: .85rem; color: var(--danger); }
   .dirty.ok { color: var(--ok); }
   .tabs { display: none; }
@@ -32,7 +35,7 @@
   .phone { width: 390px; max-width: 100%; height: min(780px, calc(100svh - 110px)); border: 10px solid #0b0f15; border-radius: 36px; overflow: hidden; background: #000; box-shadow: 0 10px 40px rgba(0, 0, 0, .25); }
   .phone iframe { width: 100%; height: 100%; border: 0; display: block; }
 
-  details.card { background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px; }
+  details.card { background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--r); }
   details.card > summary { cursor: pointer; padding: 14px 16px; font: 800 1.05rem "Bricolage Grotesque", system-ui, sans-serif; list-style: none; display: flex; justify-content: space-between; align-items: center; }
   details.card > summary::-webkit-details-marker { display: none; }
   details.card > summary::after { content: "+"; font-size: 1.3rem; color: var(--muted); }
@@ -43,21 +46,21 @@
   .field > label { font-size: .75rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
   .hint { margin: 0; font-size: .85rem; color: var(--muted); }
   input[type="text"], input[type="email"], input[type="password"], input[type="datetime-local"], textarea, select {
-    width: 100%; padding: 11px 12px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--fg); font: 400 1rem "Instrument Sans", system-ui, sans-serif;
+    width: 100%; padding: 11px 12px; border: 1.5px solid var(--line); border-radius: calc(var(--r) * .6); background: var(--bg); color: var(--fg); font: 400 1rem "Instrument Sans", system-ui, sans-serif;
   }
   textarea { min-height: 84px; resize: vertical; }
-  input[type="color"] { width: 64px; height: 42px; padding: 2px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--bg); cursor: pointer; }
+  input[type="color"] { width: 64px; height: 42px; padding: 2px; border: 1.5px solid var(--line); border-radius: calc(var(--r) * .6); background: var(--bg); cursor: pointer; }
   input[type="range"] { flex: 1; min-width: 0; accent-color: var(--accent); }
   .rng { display: flex; align-items: center; gap: 12px; }
   .rng output { min-width: 3.2em; text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
   .stack { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
   .row { display: flex; flex-wrap: wrap; gap: 8px; }
   .seg { display: flex; flex-wrap: wrap; gap: 6px; }
-  .seg button { flex: 1 1 auto; min-height: 42px; padding: 0 12px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--bg); color: var(--fg); font: 600 .95rem "Instrument Sans", system-ui, sans-serif; cursor: pointer; }
+  .seg button { flex: 1 1 auto; min-height: 42px; padding: 0 12px; border: 1.5px solid var(--line); border-radius: calc(var(--r) * .6); background: var(--bg); color: var(--fg); font: 600 .95rem "Instrument Sans", system-ui, sans-serif; cursor: pointer; }
   .seg button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
   .tog { display: flex; align-items: center; gap: 10px; min-height: 40px; cursor: pointer; font-weight: 500; }
   .tog input { width: 22px; height: 22px; accent-color: var(--accent); }
-  .btn { min-height: 42px; padding: 0 16px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg); font: 600 .95rem "Instrument Sans", system-ui, sans-serif; cursor: pointer; }
+  .btn { min-height: 42px; padding: 0 16px; border: 1.5px solid var(--line); border-radius: calc(var(--r) * .6); background: var(--surface); color: var(--fg); font: 600 .95rem "Instrument Sans", system-ui, sans-serif; cursor: pointer; }
   .btn:hover { border-color: var(--accent); }
   .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
   .btn.ghost { background: transparent; }
@@ -65,6 +68,22 @@
   .btn[disabled] { opacity: .55; cursor: default; }
   .presets { display: flex; flex-wrap: wrap; gap: 8px; }
   .linkrow { display: flex; flex-direction: column; gap: 6px; padding: 10px; border: 1.5px solid var(--line); border-radius: 12px; }
+  .sub { border: 1.5px solid var(--line); border-radius: calc(var(--r) * .75); }
+  .sub > summary { cursor: pointer; padding: 10px 12px; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 8px; }
+  .sub > summary::-webkit-details-marker { display: none; }
+  .sub > summary::after { content: "⌄"; color: var(--muted); }
+  .sub[open] > summary::after { content: "⌃"; }
+  .sub .sbody { display: flex; flex-direction: column; gap: 12px; padding: 0 12px 12px; }
+  .warn { margin: 0; font-size: .85rem; color: var(--danger); }
+  .gear { width: 42px; padding: 0; font-size: 1.2rem; }
+  .pop { position: fixed; top: 60px; right: 12px; z-index: 40; width: min(340px, calc(100% - 24px)); max-height: calc(100svh - 80px); overflow: auto; display: flex; flex-direction: column; gap: 14px; padding: 16px; border-radius: var(--r); background: var(--surface); border: 1.5px solid var(--line); box-shadow: 0 12px 40px rgba(0, 0, 0, .3); }
+  .pals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .pal { display: flex; flex-direction: column; gap: 4px; align-items: center; padding: 8px 4px; border: 1.5px solid var(--line); border-radius: 12px; background: var(--bg); color: var(--fg); font: 600 .8rem "Instrument Sans", system-ui, sans-serif; cursor: pointer; }
+  .pal[aria-pressed="true"] { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+  .pal i { display: block; width: 100%; height: 22px; border-radius: 8px; border: 1px solid rgba(128, 128, 128, .35); }
+  .qrimg { width: min(100%, 320px); aspect-ratio: 1; align-self: center; border-radius: 8px; background: #fff; border: 1px solid var(--line); image-rendering: pixelated; }
+  .arch { display: flex; flex-direction: column; gap: 6px; }
+  .arch .pic { width: 100%; aspect-ratio: 1; object-fit: contain; border-radius: 8px; background: #fff; border: 1px solid var(--line); }
   .thumb { max-width: 100%; max-height: 140px; border-radius: 10px; object-fit: cover; align-self: flex-start; }
   .msgrow { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; padding: 8px 10px; border: 1.5px solid var(--line); border-radius: 10px; overflow-wrap: anywhere; }
   .msgrow p { margin: 2px 0 0; font-size: .9rem; }
@@ -81,7 +100,7 @@
   @media (max-width: 899px) {
     .layout { grid-template-columns: minmax(0, 1fr); padding: 12px; }
     .tabs { display: flex; gap: 8px; padding: 8px 12px; background: var(--bg); position: sticky; top: 58px; z-index: 15; }
-    .tabs button { flex: 1; min-height: 42px; border: 1.5px solid var(--line); border-radius: 10px; background: var(--surface); color: var(--fg); font: 600 .95rem "Instrument Sans", system-ui, sans-serif; cursor: pointer; }
+    .tabs button { flex: 1; min-height: 42px; border: 1.5px solid var(--line); border-radius: calc(var(--r) * .6); background: var(--surface); color: var(--fg); font: 600 .95rem "Instrument Sans", system-ui, sans-serif; cursor: pointer; }
     .tabs button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
     #previewWrap { display: none; position: static; }
     body.pv #previewWrap { display: flex; }
@@ -107,9 +126,11 @@
   <header class="top">
     <h1>Studio</h1>
     <span class="dirty" id="dirty" role="status"></span>
+    <button class="btn" id="qrBtn" type="button">QR code</button>
     <a class="btn" href="index.html" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;text-decoration:none">Voir la page</a>
     <button class="btn ghost" id="logout" type="button">Déconnexion</button>
     <button class="btn primary" id="publish" type="button">Publier</button>
+    <button class="btn gear" id="gear" type="button" aria-label="Apparence du studio" aria-expanded="false" title="Apparence du studio">⚙</button>
   </header>
   <div class="tabs">
     <button type="button" id="tabCtl" aria-pressed="true">Réglages</button>
@@ -268,6 +289,15 @@
     });
     return field(label, w);
   }
+  function seg2(p, opts) {
+    const w = el('div', { class: 'seg', role: 'group' });
+    opts.forEach(([v, l]) => {
+      const b = el('button', { type: 'button', text: l, 'aria-pressed': String(get(p) === v) });
+      b.addEventListener('click', () => { set(p, v); [...w.children].forEach((c) => c.setAttribute('aria-pressed', String(c === b))); });
+      w.append(b);
+    });
+    return w;
+  }
   function tog(p, label, rebuild) {
     const i = el('input', { type: 'checkbox' });
     i.checked = !!get(p);
@@ -384,28 +414,70 @@
   }
 
   /* ---------- modèles ---------- */
+  const B = (label, extra) => Object.assign({ label, url: '' }, extra || {});
   const PRESETS = [
-    ['Clip', { mode: 'page', layout: 'full', bg: { type: 'gradient', color: '#0D1117', color2: '#8A2F7A', angle: 160 }, text: { title: 'Mon nouveau clip', body: 'Disponible maintenant', font: 'Anton', size: 72, pos: 'bottom', align: 'left', color: '#ffffff' }, button: { show: true, label: 'Regarder', bg: '#ffffff', color: '#111111' } }],
-    ['Soirée', { mode: 'page', layout: 'full', bg: { type: 'gradient', color: '#1B0A3C', color2: '#FF2D95', angle: 200 }, text: { title: 'Soirée samedi', body: 'Rendez-vous chez moi, 21 h', font: 'Monoton', size: 56, pos: 'center', align: 'center', color: '#ffffff' }, countdown: { on: true, label: 'Dans', date: '' }, button: { show: false } }],
-    ['Carte de visite', { mode: 'page', layout: 'card', bg: { type: 'color', color: '#E4EBF5' }, text: { title: 'Ton nom', body: 'Ce que tu fais', font: 'Playfair Display', size: 48, pos: 'center', align: 'center', color: '#121A26', shadow: false }, button: { show: false }, links: [{ label: 'Instagram', url: '' }, { label: 'TikTok', url: '' }, { label: 'Me contacter', url: '' }] }],
-    ['Mur de dessin', { mode: 'page', bg: { type: 'gradient', color: '#0D1117', color2: '#2F4BFF', angle: 160 }, text: { title: '' }, button: { show: false }, draw: { on: true, only: true, title: 'Dessine sur le mur' } }],
-    ['Livre d’or', { mode: 'page', layout: 'full', bg: { type: 'gradient', color: '#0F2A22', color2: '#1B6B4A', angle: 160 }, text: { title: 'Livre d’or', body: 'Laisse-moi un petit mot', pos: 'top', align: 'center', color: '#ffffff' }, button: { show: false }, guestbook: { on: true, title: 'Laisse un mot' } }]
+    ['Clip', { pageTitle: 'Mon clip', mode: 'page', layout: 'full', bg: { type: 'gradient', color: '#0D1117', color2: '#8A2F7A', angle: 160 }, text: { title: 'Mon nouveau clip', body: 'Disponible maintenant', font: 'Anton', size: 72, pos: 'bottom', align: 'left', color: '#ffffff' }, buttons: [B('Regarder', { size: 'l' })] }],
+    ['Invitation', { pageTitle: 'Invitation', mode: 'page', layout: 'full', bg: { type: 'gradient', color: '#1B0A3C', color2: '#FF2D95', angle: 200 }, text: { title: 'T’as scanné, t’es invité·e !', body: 'Soirée chez moi, samedi à 20 h\nViens comme tu es.', font: 'Bricolage Grotesque', size: 60, pos: 'center', align: 'center', color: '#ffffff' }, countdown: { on: true, label: 'C’est dans', date: '' }, buttons: [B('Voir l’adresse', { size: 'l', shape: 'pill' })], guestbook: { on: true, title: 'Dis-moi si tu viens', place: 'right' } }],
+    ['Soirée', { pageTitle: 'Soirée', mode: 'page', layout: 'full', bg: { type: 'gradient', color: '#1B0A3C', color2: '#FF2D95', angle: 200 }, text: { title: 'Soirée samedi', body: 'Rendez-vous chez moi, 21 h', font: 'Monoton', size: 56, pos: 'center', align: 'center', color: '#ffffff' }, countdown: { on: true, label: 'Dans', date: '' }, buttons: [] }],
+    ['Carte de visite', { pageTitle: 'Mes liens', mode: 'page', layout: 'card', bg: { type: 'color', color: '#E4EBF5' }, text: { title: 'Ton nom', body: 'Ce que tu fais', font: 'Playfair Display', size: 48, pos: 'center', align: 'center', color: '#121A26', shadow: false }, buttons: [B('Instagram', { bg: '#121A26', color: '#ffffff', full: true }), B('TikTok', { bg: '#121A26', color: '#ffffff', full: true }), B('Me contacter', { bg: '#121A26', color: '#ffffff', full: true })] }],
+    ['Mur de dessin', { pageTitle: 'Mur de dessin', mode: 'page', bg: { type: 'gradient', color: '#0D1117', color2: '#2F4BFF', angle: 160 }, text: { title: '' }, buttons: [], draw: { on: true, only: true, title: 'Dessine sur le mur', size: 3000 } }],
+    ['Livre d’or', { pageTitle: 'Livre d’or', mode: 'page', layout: 'full', bg: { type: 'gradient', color: '#0F2A22', color2: '#1B6B4A', angle: 160 }, text: { title: 'Livre d’or', body: 'Laisse-moi un petit mot', pos: 'top', align: 'center', color: '#ffffff' }, buttons: [], guestbook: { on: true, title: 'Laisse un mot', place: 'middle' } }]
   ];
 
   /* ---------- panneau de réglages ---------- */
   const FONT_OPTS = () => Q.FONTS.map((f) => [f[0], f[0], Q.fontStack(f[0])]);
-  function linksUI() {
+  const openBtn = new Set([0]);
+  function buttonsUI() {
     const box = el('div', { class: 'stack' });
-    cfg.links.forEach((l, i) => {
-      const a = el('input', { type: 'text', placeholder: 'Texte (ex : Instagram)', 'aria-label': 'Texte du lien' });
-      a.value = l.label || ''; a.addEventListener('input', () => { l.label = a.value; changed(); });
-      const b = el('input', { type: 'text', placeholder: 'https://…', 'aria-label': 'Adresse du lien' });
-      b.value = l.url || ''; b.addEventListener('input', () => { l.url = b.value; changed(); });
-      box.append(el('div', { class: 'linkrow' }, a, b, btn('Supprimer ce lien', 'ghost', () => { cfg.links.splice(i, 1); changed(); build(); })));
+    cfg.buttons.forEach((b, i) => {
+      const warn = el('p', { class: 'warn', text: '⚠ Ajoute une adresse : sans adresse, ce bouton n’apparaît pas sur la page.' });
+      const upd = () => { warn.hidden = !!QR_safe(b.url); };
+      const d = el('details', { class: 'sub' });
+      if (openBtn.has(i)) d.open = true;
+      d.addEventListener('toggle', () => { d.open ? openBtn.add(i) : openBtn.delete(i); });
+      const sum = el('summary', null, el('span', { text: b.label || 'Bouton ' + (i + 1) }));
+      const bind = (key, label, ph) => {
+        const inp = el('input', { type: 'text', placeholder: ph || '', 'aria-label': label });
+        inp.value = b[key] || '';
+        inp.addEventListener('input', () => { b[key] = inp.value; if (key === 'label') sum.firstChild.textContent = inp.value || 'Bouton ' + (i + 1); upd(); changed(); });
+        return field(label, inp);
+      };
+      const segB = (key, label, opts) => {
+        const w = el('div', { class: 'seg', role: 'group', 'aria-label': label });
+        opts.forEach(([v, l]) => {
+          const bt = el('button', { type: 'button', text: l, 'aria-pressed': String(b[key] === v) });
+          bt.addEventListener('click', () => { b[key] = v; [...w.children].forEach((c) => c.setAttribute('aria-pressed', String(c === bt))); changed(); });
+          w.append(bt);
+        });
+        return field(label, w);
+      };
+      const colB = (key, label) => {
+        const inp = el('input', { type: 'color', 'aria-label': label });
+        inp.value = b[key] || '#000000';
+        inp.addEventListener('input', () => { b[key] = inp.value; changed(); });
+        return field(label, inp);
+      };
+      const fullT = el('input', { type: 'checkbox' }); fullT.checked = !!b.full;
+      fullT.addEventListener('change', () => { b.full = fullT.checked; changed(); });
+      const move = (dir) => { const j = i + dir; if (j < 0 || j >= cfg.buttons.length) return; [cfg.buttons[i], cfg.buttons[j]] = [cfg.buttons[j], cfg.buttons[i]]; changed(); build(); };
+      d.append(sum, el('div', { class: 'sbody' },
+        bind('label', 'Texte du bouton', 'Ex : Instagram'),
+        bind('url', 'Adresse (là où il mène)', 'https://…'), warn,
+        segB('size', 'Taille', [['s', 'Petit'], ['m', 'Moyen'], ['l', 'Grand']]),
+        segB('shape', 'Forme', [['round', 'Arrondi'], ['pill', 'Pilule'], ['square', 'Carré']]),
+        segB('fill', 'Style', [['solid', 'Plein'], ['outline', 'Contour']]),
+        segB('align', 'Placement', [['auto', 'Comme le texte'], ['left', 'Gauche'], ['center', 'Centre'], ['right', 'Droite']]),
+        el('label', { class: 'tog' }, fullT, el('span', { text: 'Large (prend toute la largeur)' })),
+        colB('bg', 'Couleur du bouton'), colB('color', 'Couleur du texte (style plein)'),
+        el('div', { class: 'row' }, btn('↑ Monter', 'ghost', () => move(-1)), btn('↓ Descendre', 'ghost', () => move(1)), btn('Supprimer', 'danger ghost', () => { cfg.buttons.splice(i, 1); openBtn.clear(); changed(); build(); }))));
+      upd();
+      box.append(d);
     });
-    box.append(btn('+ Ajouter un lien', '', () => { cfg.links.push({ label: '', url: '' }); changed(); build(); }));
+    box.append(btn('+ Ajouter un bouton', '', () => { cfg.buttons.push(Object.assign({}, Q.BTN_DEFAULT, { label: 'Mon lien' })); openBtn.add(cfg.buttons.length - 1); changed(); build(); }));
     return box;
   }
+  const QR_safe = (u) => Q.safeUrl(u);
+
   function messagesUI() {
     const list = el('div', { class: 'stack' });
     const show = btn('Voir les messages du livre d’or', '', () => {
@@ -422,6 +494,173 @@
     return el('div', { class: 'stack' }, show, list);
   }
 
+  /* ---------- mur de dessin : enregistrer / archive ---------- */
+  const ARCH = 'mur-dessin-';
+  function fetchAllStrokes() {
+    let last = 0; const all = [];
+    const step = () => Q.rest('drawings?select=id,stroke&id=gt.' + last + '&order=id.asc&limit=1000', null, null, 15000).then((rows) => {
+      rows = rows || [];
+      rows.forEach((r) => { last = Math.max(last, r.id); const s = Q.cleanStroke(r.stroke); if (s) all.push(s); });
+      return rows.length < 1000 ? all : step();
+    });
+    return step();
+  }
+  function saveWall(thenClear) {
+    flash('Enregistrement du dessin…');
+    return fetchAllStrokes().then((strokes) => {
+      if (!strokes.length) { flash('Le mur est vide : rien à enregistrer.'); return null; }
+      const N = 2400, layer = document.createElement('canvas'); layer.width = layer.height = N;
+      const lc = layer.getContext('2d');
+      strokes.forEach((st) => Q.paintSeg(lc, st, N, N, 0));
+      const out = document.createElement('canvas'); out.width = out.height = N;
+      const oc = out.getContext('2d'); oc.fillStyle = cfg.draw.paper || '#ffffff'; oc.fillRect(0, 0, N, N); oc.drawImage(layer, 0, 0);
+      return new Promise((res) => out.toBlob(res, 'image/png')).then((blob) => {
+        const d = new Date(), p = (n) => String(n).padStart(2, '0');
+        const name = ARCH + d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate()) + '-' + p(d.getHours()) + p(d.getMinutes()) + '.png';
+        return uploadFile(new File([blob], name, { type: 'image/png' })).then(() => strokes.length);
+      });
+    }).then((n) => {
+      if (n == null) return;
+      if (!thenClear) { flash('Dessin enregistré ✓ (' + n + ' traits). Le mur continue, rien n’est effacé.'); return; }
+      return adm('drawings?id=gt.0', { method: 'DELETE' }).then(() => flash('Dessin enregistré ✓ puis mur remis à blanc.'));
+    }).catch((e) => flash(errMsg(e)));
+  }
+  function openArchive() {
+    const back = el('div', { class: 'modal', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Dessins enregistrés' });
+    const grid = el('div', { class: 'grid' }), status = el('p', { class: 'hint', role: 'status' });
+    back.append(el('div', { class: 'mbox' }, el('div', { class: 'mhead' }, el('h2', { text: 'Dessins enregistrés' }), btn('Fermer', 'ghost', () => back.remove())), status, grid));
+    back.addEventListener('click', (e) => { if (e.target === back) back.remove(); });
+    document.body.append(back);
+    function refresh() {
+      status.textContent = 'Chargement…';
+      listFiles().then((items) => {
+        const list = items.filter((it) => it.name.indexOf(ARCH) >= 0);
+        grid.replaceChildren();
+        status.textContent = list.length ? '' : 'Aucun dessin enregistré pour le moment. Utilise « Enregistrer le dessin actuel ».';
+        list.forEach((it) => {
+          const m = it.name.match(/(\d{4})-(\d{2})-(\d{2})-(\d{2})(\d{2})/);
+          const when = m ? m[3] + '/' + m[2] + '/' + m[1] + ' à ' + m[4] + ' h ' + m[5] : it.name;
+          const url = Q.mediaUrl(it.name);
+          grid.append(el('div', { class: 'tile arch' },
+            el('img', { class: 'pic', src: url, alt: 'Dessin du ' + when }),
+            el('div', { class: 'nm', text: when }),
+            el('a', { class: 'btn', href: url, target: '_blank', rel: 'noopener', text: 'Ouvrir en grand', style: { textAlign: 'center', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' } }),
+            el('a', { class: 'btn', href: url + '?download=' + encodeURIComponent(it.name), text: 'Télécharger', style: { textAlign: 'center', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' } }),
+            btn('Supprimer', 'danger ghost', () => {
+              if (!confirm('Supprimer ce dessin enregistré ?')) return;
+              storage('object/media/' + encodeURIComponent(it.name), { method: 'DELETE' }).then(refresh).catch((e) => { status.textContent = errMsg(e); });
+            })));
+        });
+      }).catch((e) => { status.textContent = errMsg(e); });
+    }
+    refresh();
+  }
+  function wallActions() {
+    return el('div', { class: 'stack' },
+      btn('💾 Enregistrer le dessin actuel', 'primary', () => saveWall(false)),
+      btn('Enregistrer puis remettre le mur à blanc', '', () => { if (confirm('Enregistrer le dessin, puis effacer le mur pour recommencer ?')) saveWall(true); }),
+      btn('🖼 Voir mes dessins enregistrés', '', openArchive),
+      btn('Effacer tous les dessins (sans enregistrer)', 'danger', () => {
+        if (!confirm('Effacer tous les dessins du mur SANS les enregistrer ? Cette action est définitive.')) return;
+        adm('drawings?id=gt.0', { method: 'DELETE' }).then(() => flash('Le mur est vide.')).catch((e) => flash(errMsg(e)));
+      }));
+  }
+
+  /* ---------- QR code ---------- */
+  function pageUrl() { return location.origin + location.pathname.replace(/[^/]*$/, ''); }
+  function openQr() {
+    const back = el('div', { class: 'modal', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Ton QR code' });
+    const url = el('input', { type: 'text', 'aria-label': 'Adresse encodée dans le QR code' }); url.value = pageUrl();
+    const img = el('img', { class: 'qrimg', alt: 'Ton QR code' });
+    const err = el('p', { class: 'warn', role: 'alert' });
+    let ecl = 'H', svg = '';
+    const eclSeg = el('div', { class: 'seg', role: 'group', 'aria-label': 'Robustesse' });
+    [['H', 'Très robuste (conseillé pour un tatouage)'], ['M', 'Standard (plus simple)']].forEach(([v, l]) => {
+      const b = el('button', { type: 'button', text: l, 'aria-pressed': String(v === ecl) });
+      b.addEventListener('click', () => { ecl = v; [...eclSeg.children].forEach((c) => c.setAttribute('aria-pressed', String(c === b))); draw(); });
+      eclSeg.append(b);
+    });
+    function draw() {
+      try { svg = Q.qrSvg(url.value.trim(), ecl); err.textContent = ''; img.src = 'data:image/svg+xml;utf8,' + encodeURIComponent(svg); }
+      catch (e) { err.textContent = e.message; }
+    }
+    url.addEventListener('input', draw);
+    function save(blob, name) { const a = el('a', { href: URL.createObjectURL(blob), download: name }); document.body.append(a); a.click(); a.remove(); }
+    const png = btn('Télécharger en PNG', 'primary', () => {
+      const i = new Image();
+      i.onload = () => { const c = document.createElement('canvas'); c.width = c.height = 1600; const x = c.getContext('2d'); x.imageSmoothingEnabled = false; x.drawImage(i, 0, 0, 1600, 1600); c.toBlob((b) => save(b, 'mon-qr-code.png')); };
+      i.src = img.src;
+    });
+    const svgB = btn('Télécharger en SVG (pour imprimer ou tatouer)', '', () => save(new Blob([svg], { type: 'image/svg+xml' }), 'mon-qr-code.svg'));
+    const copy = btn('Copier l’adresse', '', () => { (navigator.clipboard ? navigator.clipboard.writeText(url.value.trim()) : Promise.reject()).then(() => flash('Adresse copiée.')).catch(() => flash('Copie impossible : sélectionne l’adresse à la main.')); });
+    back.append(el('div', { class: 'mbox' },
+      el('div', { class: 'mhead' }, el('h2', { text: 'Ton QR code' }), btn('Fermer', 'ghost', () => back.remove())),
+      img, err,
+      el('p', { class: 'hint', text: 'Ce QR code ne change jamais : c’est le studio qui change ce qu’il affiche. Scanne-le avec ton téléphone pour tester.' }),
+      field('Robustesse', eclSeg, 'Plus il est robuste, mieux il se lit même abîmé ou sur la peau, mais plus il a de petits carrés.'),
+      field('Adresse encodée', url, 'Si un jour tu as ton propre nom de domaine, change l’adresse ici et refais l’image.'),
+      el('div', { class: 'row' }, png, svgB, copy),
+      el('p', { class: 'hint', text: 'Avant de tatouer : fais un test de lecture avec le dessin imprimé (au moins 4 à 5 cm de côté, noir sur blanc, bien contrasté), et ne renomme jamais ton compte GitHub ni le dépôt « QR-Code », sinon l’adresse change et le QR code ne marchera plus.' })));
+    back.addEventListener('click', (e) => { if (e.target === back) back.remove(); });
+    document.body.append(back);
+    draw();
+  }
+  $('#qrBtn').addEventListener('click', openQr);
+
+  /* ---------- apparence du studio (engrenage) ---------- */
+  const PALS = [
+    ['auto', 'Auto', null, ['#EDF0F5', '#0D1117']],
+    ['light', 'Clair', { dark: false }, ['#EDF0F5']],
+    ['dark', 'Sombre', { dark: true }, ['#0D1117']],
+    ['ocean', 'Océan', { dark: true, bg: '#071A2B', surface: '#0D2740', fg: '#E6F2FF', muted: '#8FB0CC', line: '#1B3C5A', accent: '#38BDF8', on: '#04202F' }, ['#071A2B']],
+    ['foret', 'Forêt', { dark: true, bg: '#0B1A14', surface: '#12281F', fg: '#E4F5EA', muted: '#8FB3A0', line: '#21402F', accent: '#34D399', on: '#04251A' }, ['#0B1A14']],
+    ['violet', 'Violet', { dark: true, bg: '#14102A', surface: '#1D1840', fg: '#EEEAFF', muted: '#A79FD6', line: '#342D6B', accent: '#A78BFA', on: '#1A1040' }, ['#14102A']],
+    ['rose', 'Rose', { dark: false, bg: '#FFF1F5', surface: '#FFFFFF', fg: '#3A1020', muted: '#8A4F63', line: '#F3C6D4', accent: '#E11D74', on: '#FFFFFF' }, ['#FFF1F5']],
+    ['sunset', 'Soleil', { dark: false, bg: '#FFF4E8', surface: '#FFFFFF', fg: '#2B1708', muted: '#8A6544', line: '#F0D3B5', accent: '#EA580C', on: '#FFFFFF' }, ['#FFF4E8']]
+  ];
+  const THEME_VARS = ['--bg', '--surface', '--fg', '--muted', '--line', '--accent', '--on-accent'];
+  let theme = { pal: 'auto', accent: '', radius: 16 };
+  try { theme = Object.assign(theme, JSON.parse(localStorage.getItem('qr_theme'))); } catch (e) {}
+  function onColor(hex) { const n = parseInt(hex.slice(1), 16); const l = (0.299 * (n >> 16) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255; return l > 0.6 ? '#0D1117' : '#FFFFFF'; }
+  function applyTheme() {
+    const r = document.documentElement;
+    THEME_VARS.forEach((v) => r.style.removeProperty(v));
+    const p = PALS.find((x) => x[0] === theme.pal) || PALS[0];
+    if (p[0] === 'auto') r.removeAttribute('data-mode'); else r.setAttribute('data-mode', p[2].dark ? 'dark' : 'light');
+    if (p[2] && p[2].bg) {
+      const o = p[2];
+      r.style.setProperty('--bg', o.bg); r.style.setProperty('--surface', o.surface); r.style.setProperty('--fg', o.fg);
+      r.style.setProperty('--muted', o.muted); r.style.setProperty('--line', o.line); r.style.setProperty('--accent', o.accent); r.style.setProperty('--on-accent', o.on);
+    }
+    if (theme.accent) { r.style.setProperty('--accent', theme.accent); r.style.setProperty('--on-accent', onColor(theme.accent)); }
+    r.style.setProperty('--r', (+theme.radius || 16) + 'px');
+    try { localStorage.setItem('qr_theme', JSON.stringify(theme)); } catch (e) {}
+  }
+  applyTheme();
+  let pop = null;
+  function toggleGear() {
+    const g = $('#gear');
+    if (pop) { pop.remove(); pop = null; g.setAttribute('aria-expanded', 'false'); return; }
+    const pals = el('div', { class: 'pals' });
+    PALS.forEach((p) => {
+      const b = el('button', { type: 'button', class: 'pal', 'aria-pressed': String(theme.pal === p[0]) }, el('i', { style: { background: p[3].length > 1 ? 'linear-gradient(90deg,' + p[3][0] + ' 50%,' + p[3][1] + ' 50%)' : (p[2] && p[2].accent ? 'linear-gradient(90deg,' + p[3][0] + ' 60%,' + p[2].accent + ' 60%)' : p[3][0]) } }), p[1]);
+      b.addEventListener('click', () => { theme.pal = p[0]; applyTheme(); [...pals.children].forEach((c) => c.setAttribute('aria-pressed', String(c === b))); });
+      pals.append(b);
+    });
+    const acc = el('input', { type: 'color', 'aria-label': 'Couleur principale' }); acc.value = theme.accent || '#2F4BFF';
+    acc.addEventListener('input', () => { theme.accent = acc.value; applyTheme(); });
+    const rad = el('input', { type: 'range', min: 0, max: 28, step: 2, 'aria-label': 'Arrondi' }); rad.value = theme.radius;
+    rad.addEventListener('input', () => { theme.radius = +rad.value; applyTheme(); });
+    pop = el('div', { class: 'pop', role: 'dialog', 'aria-label': 'Apparence du studio' },
+      el('div', { class: 'mhead' }, el('h2', { text: 'Apparence du studio', style: { fontSize: '1.1rem' } }), btn('Fermer', 'ghost', toggleGear)),
+      field('Thème', pals),
+      field('Couleur principale', el('div', { class: 'row' }, acc, btn('Revenir à celle du thème', 'ghost', () => { theme.accent = ''; applyTheme(); acc.value = '#2F4BFF'; }))),
+      field('Arrondi des coins', rad),
+      el('p', { class: 'hint', text: 'Ça ne change que l’apparence du studio, pas ta page. Réglage gardé sur cet appareil.' }));
+    document.body.append(pop); g.setAttribute('aria-expanded', 'true');
+  }
+  $('#gear').addEventListener('click', toggleGear);
+
   function build() {
     const root = $('#controls'); root.replaceChildren();
     const m = cfg.mode;
@@ -437,15 +676,23 @@
 
     if (m === 'page') {
       const bt = cfg.bg.type;
+      const hasM = bt === 'image' || bt === 'video';
+      root.append(card('Nom de la page',
+        txt('pageTitle', 'Nom affiché dans l’onglet du navigateur', { max: 60, ph: 'Ex : Invitation', hint: 'C’est le titre de la page quand on la scanne. Laisse vide pour reprendre le titre du texte.' })));
+
       root.append(card('Fond',
         seg('bg.type', 'Type de fond', [['color', 'Couleur'], ['gradient', 'Dégradé'], ['image', 'Photo'], ['video', 'Vidéo']], true),
         bt === 'color' ? col('bg.color', 'Couleur du fond') : null,
         bt === 'gradient' ? [col('bg.color', 'Première couleur'), col('bg.color2', 'Deuxième couleur'), rng('bg.angle', 'Direction', 0, 360, 5, '°')] : null,
         bt === 'image' ? media('bg.media', 'Photo', 'image') : null,
         bt === 'video' ? media('bg.media', 'Vidéo (fichier ou lien YouTube)', 'video') : null,
-        (bt === 'image' || bt === 'video') ? [
+        hasM ? [
           seg('layout', 'Présentation', [['full', 'Texte par-dessus le fond'], ['card', 'Dans un cadre, texte dessous']], true),
-          cfg.layout === 'full' ? [rng('bg.overlay', 'Voile sur le fond', 0, 0.9, 0.05), col('bg.overlayColor', 'Couleur du voile')] : col('bg.color', 'Couleur derrière le cadre')
+          cfg.layout === 'full' ? [
+            col('bg.color', 'Couleur du fond (derrière la ' + (bt === 'video' ? 'vidéo' : 'photo') + ')'),
+            rng('bg.mediaOpacity', 'Opacité de la ' + (bt === 'video' ? 'vidéo' : 'photo') + ' sur cette couleur', 0, 1, 0.05),
+            rng('bg.overlay', 'Voile sur le fond', 0, 0.9, 0.05), col('bg.overlayColor', 'Couleur du voile')
+          ] : col('bg.color', 'Couleur derrière le cadre')
         ] : null));
 
       root.append(card('Texte',
@@ -460,34 +707,41 @@
         seg('text.align', 'Alignement', [['left', 'Gauche'], ['center', 'Centre'], ['right', 'Droite']]),
         tog('text.shadow', 'Ombre derrière le texte (plus lisible)')));
 
-      root.append(card('Bouton et liens',
-        tog('button.show', 'Afficher un gros bouton', true),
-        cfg.button.show ? [txt('button.label', 'Texte du bouton', { max: 30 }), txt('button.url', 'Adresse du bouton', { ph: 'https://…' }), col('button.bg', 'Couleur du bouton'), col('button.color', 'Couleur du texte du bouton')] : null,
-        field('Autres liens', linksUI(), 'Instagram, TikTok, site… ils s’affichent sous le bouton.')));
+      root.append(card('Boutons',
+        el('p', { class: 'hint', text: 'Ajoute autant de boutons que tu veux (Instagram, clip, site…). Chacun a sa taille, sa forme, ses couleurs et sa place.' }),
+        buttonsUI()));
 
       root.append(card('Musique',
         media('music.src', 'Musique de fond', 'audio'),
         rng('music.volume', 'Volume', 0, 1, 0.05),
         txt('music.gate', 'Message avant le démarrage', { max: 60, hint: 'Les téléphones interdisent le son automatique : la personne touche l’écran, puis la musique démarre.' })));
 
+      const PLACES = [['top', 'Haut'], ['middle', 'Milieu'], ['bottom', 'Bas'], ['left', 'Tiroir gauche'], ['right', 'Tiroir droit']];
+      const PH = 'Haut = avant le texte. Milieu = entre le texte et les boutons. Bas = sous tout. Tiroir = une languette sur le côté qu’on touche pour faire glisser le module.';
       root.append(card('Modules',
         tog('draw.on', 'Mur de dessin partagé', true),
         cfg.draw.on ? [
-          tog('draw.only', 'Page entière de dessin (cache le texte)'),
+          tog('draw.only', 'Mur en page entière (cache le texte)', true),
+          cfg.draw.only ? null : field('Où mettre le mur ?', seg2('draw.place', PLACES), PH),
+          field('Taille du mur', seg2('draw.size', [[2000, 'Moyen'], [3000, 'Grand'], [4000, 'Géant']]), 'Plus le mur est grand, plus il y a de place pour tout le monde (4000 = environ 10 écrans de téléphone de large).'),
           txt('draw.title', 'Titre du mur', { max: 60 }),
           col('draw.paper', 'Couleur du papier'),
-          btn('Effacer tous les dessins', 'danger', () => {
-            if (!confirm('Effacer tous les dessins du mur ? Cette action est définitive.')) return;
-            adm('drawings?id=gt.0', { method: 'DELETE' }).then(() => flash('Le mur est vide.')).catch((e) => flash(errMsg(e)));
-          })
+          wallActions()
         ] : null,
         tog('guestbook.on', 'Livre d’or', true),
-        cfg.guestbook.on ? [txt('guestbook.title', 'Titre du livre d’or', { max: 60 }), messagesUI()] : null,
+        cfg.guestbook.on ? [field('Où mettre le livre d’or ?', seg2('guestbook.place', PLACES), PH), txt('guestbook.title', 'Titre du livre d’or', { max: 60 }), messagesUI()] : null,
         tog('countdown.on', 'Compte à rebours', true),
         cfg.countdown.on ? [txt('countdown.label', 'Texte au-dessus', { max: 60, ph: 'Dans' }), (() => {
           const i = el('input', { type: 'datetime-local', 'aria-label': 'Date et heure' }); i.value = cfg.countdown.date || '';
           i.addEventListener('input', () => set('countdown.date', i.value)); return field('Date et heure', i);
         })()] : null));
+
+      root.append(card('Apparence des modules',
+        el('p', { class: 'hint', text: 'Les cartes du dessin et du livre d’or (et leurs languettes).' }),
+        col('modStyle.bg', 'Couleur de la carte'),
+        col('modStyle.color', 'Couleur du texte'),
+        rng('modStyle.opacity', 'Opacité de la carte', 0.2, 1, 0.05),
+        rng('modStyle.radius', 'Arrondi des coins', 0, 40, 2, ' px')));
     }
     root.append(card('Mes fichiers', el('p', { class: 'hint', text: 'Toutes tes photos, vidéos et musiques envoyées.' }), btn('Ouvrir mes fichiers', '', () => openPicker(null, null))));
   }
