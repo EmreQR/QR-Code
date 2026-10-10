@@ -87,7 +87,7 @@
   .edge { position: fixed; top: 50%; transform: translateY(-50%); z-index: 30; display: flex; flex-direction: column; gap: 8px; }
   .edge.left { left: 0; }
   .edge.right { right: 0; }
-  .handle { border: 0; padding: 14px 8px; writing-mode: vertical-rl; font: 700 .95rem "Instrument Sans", system-ui, sans-serif; cursor: pointer; box-shadow: 0 4px 16px rgba(0, 0, 0, .3); }
+  .handle { border: 0 solid transparent; padding: 14px 8px; writing-mode: vertical-rl; font: 700 .95rem "Instrument Sans", system-ui, sans-serif; cursor: pointer; box-shadow: 0 4px 16px rgba(0, 0, 0, .3); }
   .edge.left .handle { border-radius: 0 14px 14px 0; }
   .edge.right .handle { border-radius: 14px 0 0 14px; }
   .drawer { position: fixed; top: 0; bottom: 0; z-index: 31; width: min(92vw, 26rem); overflow: auto; padding: 16px; visibility: hidden; transition: transform .28s ease, visibility 0s .28s; box-shadow: 0 0 40px rgba(0, 0, 0, .4); text-align: left; }
@@ -585,7 +585,7 @@
       var edge = el('div', { class: 'edge ' + side });
       list.forEach(function (x) {
         var drawer = el('aside', { class: 'drawer ' + side, style: { background: ms.background, color: ms.color, borderRadius: '0', border: ms.border, opacity: ms.opacity } });
-        var handle = el('button', { type: 'button', class: 'handle', text: x.label, 'aria-expanded': 'false', style: { background: c.modStyle.bg, color: c.modStyle.color } });
+        var handle = el('button', { type: 'button', class: 'handle', text: x.label, 'aria-expanded': 'false', style: outline ? { background: 'rgba(0,0,0,.25)', color: c.modStyle.bg, border: '3px solid ' + c.modStyle.bg, opacity: ms.opacity } : { background: rgba(c.modStyle.bg, Math.max(0.5, mo)), color: c.modStyle.color, opacity: ms.opacity } });
         var closeB = el('button', { type: 'button', class: 'dclose', 'aria-label': 'Fermer', text: '✕' });
         function toggle(open) {
           drawer.classList.toggle('open', open);
