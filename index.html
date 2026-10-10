@@ -123,7 +123,7 @@
 </head>
 <body>
 <div id="app"><p class="boot">Chargement…</p></div>
-<script src="shared.js"></script>
+<script src="shared.js?v=2"></script>
 <script>
 (function () {
   'use strict';
@@ -160,24 +160,25 @@
   function gradient(bg) { return 'linear-gradient(' + (+bg.angle || 0) + 'deg, ' + bg.color + ', ' + bg.color2 + ')'; }
 
   /* ---------- médias de fond / de cadre ---------- */
+  function opa(bg) { var o = +bg.mediaOpacity; return String(isFinite(o) ? Math.min(1, Math.max(0, o)) : 1); }
   function mediaNode(bg, asFrame) {
     var src = Q.mediaUrl(bg.media);
     if (!src) return null;
     var yt = Q.ytId(bg.media);
     if (bg.type === 'image') {
       var img = el('img', { src: src, alt: '' });
-      if (asFrame) img.className = 'frame';
+      if (asFrame) { img.className = 'frame'; img.style.background = 'transparent'; img.style.opacity = opa(bg); }
       return img;
     }
     if (bg.type === 'video') {
       if (yt) {
         var f = el('iframe', { src: 'https://www.youtube.com/embed/' + yt + '?autoplay=1&mute=1&loop=1&playlist=' + yt + '&controls=0&modestbranding=1&playsinline=1', allow: 'autoplay; encrypted-media', title: 'Vidéo' });
-        if (asFrame) f.className = 'frame';
+        if (asFrame) { f.className = 'frame'; f.style.opacity = opa(bg); }
         return f;
       }
       var v = el('video', { src: src, autoplay: true, loop: true, playsinline: true, muted: true });
       v.muted = true;
-      if (asFrame) v.className = 'frame';
+      if (asFrame) { v.className = 'frame'; v.style.background = 'transparent'; v.style.opacity = opa(bg); }
       var p = v.play(); if (p && p.catch) p.catch(function () {});
       return v;
     }
