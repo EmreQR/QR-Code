@@ -177,6 +177,7 @@
 
   /* ---------- dessin : trait -> rendu (monde carré, coordonnées 0-1) ---------- */
   function cleanStroke(s) {
+    if (s && typeof s === 'object' && s.u) return { u: String(s.u), k: String(s.k || '') };   // « annuler » : retire le trait portant cette clé
     if (!s || typeof s !== 'object' || !Array.isArray(s.p) || !s.p.length) return null;
     var col = (s.c === 'erase' || /^#[0-9a-fA-F]{6}$/.test(s.c)) ? s.c : '#121A26';
     var w = Math.min(0.1, Math.max(0.0005, +s.w || 0.01));

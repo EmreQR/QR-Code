@@ -214,8 +214,19 @@
         st.lastId = Math.max(st.lastId, r.id);
         var s = Q.cleanStroke(r.stroke);
         if (!s || (s.k && st.mine[s.k])) return;
+        if (s.u) { st.drop([s.u]); st.subs.forEach(function (v) { v.redraw(); }); return; }
         st.strokes.push(s);
         st.subs.forEach(function (v) { v.stroke(s); });
+      });
+    };
+    st.drop = function (keys) { st.strokes = st.strokes.filter(function (x) { return keys.indexOf(x.k) < 0; }); };
+    st.undo = function (keys) {
+      st.drop(keys);
+      st.subs.forEach(function (v) { v.redraw(); });
+      if (preview) return;
+      keys.forEach(function (k) {
+        var mk = Math.random().toString(36).slice(2, 10); st.mine[mk] = 1;
+        Q.rest('drawings', { method: 'POST', headers: { 'Content-Type': 'application/json', Prefer: 'return=minimal' }, body: JSON.stringify({ stroke: { u: k, k: mk, s: 2 } }) }).catch(function () {});
       });
     };
     st.reset = function () { st.strokes = []; st.lastId = 0; st.subs.forEach(function (v) { v.reset(); }); };
@@ -276,6 +287,7 @@
     var scroller = el('div', { class: 'scroller' }, world);
     var root = el('div', { class: 'wall' + (asOverlay ? ' overlay-on' : '') }, scroller);
     var zoom = 1, color = COLORS[0], width = WIDTHS[1][1], tool = 'draw', cur = null, pts = {}, panning = false;
+    var group = [], undoS = [], redoS = [];
 
     function applyZoom(keepCenter) {
       var cx = (scroller.scrollLeft + scroller.clientWidth / 2) / (cv.offsetWidth || 1);
@@ -305,7 +317,8 @@
       cur = { c: color, w: color === 'erase' ? width * 2.2 : width, p: [p], k: k, s: 2 };
       Q.paintSeg(ctx, cur, N, N, 0);
     }
-    function finish() { if (!cur) return; var s = cur; cur = null; st.local(s, view); }
+    function finish() { if (!cur) return; var s = cur; cur = null; group.push(s); st.local(s, view); }
+    function endGesture() { if (group.length) { undoS.push(group); redoS = []; group = []; sync(); } }
     function cancel() { if (!cur) return; cur = null; view.redraw(); }
     var lastPx = null;
     if (!preview) {
@@ -338,7 +351,7 @@
       });
       var up = function (e) {
         delete pts[e.pointerId];
-        if (!Object.keys(pts).length) { panning = false; finish(); }
+        if (!Object.keys(pts).length) { panning = false; finish(); endGesture(); }
       };
       cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
     } else {
@@ -358,17 +371,42 @@
     function tb(text, fn, label) { var b = el('button', { type: 'button', class: 'tb', text: text, 'aria-label': label || text }); b.addEventListener('click', fn); return b; }
     var eraser = tb('Gomme', function () { color = 'erase'; tool = 'draw'; sync(); });
     var wbtns = WIDTHS.map(function (w) { return tb(w[0], function () { width = w[1]; sync(); }); });
+    var undoB = tb('↶', function () { doUndo(); }, 'Annuler le dernier trait');
+    var redoB = tb('↷', function () { doRedo(); }, 'Rétablir');
+    function doUndo() {
+      if (!undoS.length || preview) return;
+      var g = undoS.pop(); redoS.push(g);
+      st.undo(g.map(function (x) { return x.k; })); sync();
+    }
+    function doRedo() {
+      if (!redoS.length || preview) return;
+      var g = redoS.pop(), ng = g.map(function (x) {
+        var k = Math.random().toString(36).slice(2, 10); st.mine[k] = 1;
+        return { c: x.c, w: x.w, p: x.p, k: k, s: 2 };
+      });
+      ng.forEach(function (x) { st.local(x, null); });
+      undoS.push(ng); sync();
+    }
+    function onKey(e) {
+      if (!(e.ctrlKey || e.metaKey) || /input|textarea/i.test((e.target || {}).tagName || '')) return;
+      var key = (e.key || '').toLowerCase();
+      if (key === 'z' && !e.shiftKey) { e.preventDefault(); doUndo(); }
+      else if (key === 'y' || (key === 'z' && e.shiftKey)) { e.preventDefault(); doRedo(); }
+    }
+    document.addEventListener('keydown', onKey);
     var panBtn = tb('✋ Déplacer', function () { tool = tool === 'pan' ? 'draw' : 'pan'; sync(); }, 'Déplacer la vue');
     var zOut = tb('−', function () { zoom = Math.max(minZoom(), zoom / 1.5); applyZoom(true); }, 'Dézoomer');
     var zIn = tb('+', function () { zoom = Math.min(1.5, zoom * 1.5); applyZoom(true); }, 'Zoomer');
     var zAll = tb('Tout voir', function () { zoom = minZoom(); applyZoom(false); scroller.scrollLeft = scroller.scrollTop = 0; });
-    var r1 = el('div', { class: 'trow' }, swatches), r2 = el('div', { class: 'trow' }, [eraser].concat(wbtns)), r3 = el('div', { class: 'trow' }, [panBtn, zOut, zIn, zAll]);
+    var r1 = el('div', { class: 'trow' }, swatches), r2 = el('div', { class: 'trow' }, [eraser].concat(wbtns)), r3 = el('div', { class: 'trow' }, [undoB, redoB, panBtn, zOut, zIn, zAll]);
     tools.replaceChildren(r1, r2, r3);
     function sync() {
       swatches.forEach(function (b, i) { b.setAttribute('aria-pressed', String(COLORS[i] === color)); });
       eraser.setAttribute('aria-pressed', String(color === 'erase'));
       wbtns.forEach(function (b, i) { b.setAttribute('aria-pressed', String(WIDTHS[i][1] === width)); });
       panBtn.setAttribute('aria-pressed', String(tool === 'pan'));
+      undoB.disabled = !undoS.length; redoB.disabled = !redoS.length;
+      undoB.style.opacity = undoS.length ? 1 : .4; redoB.style.opacity = redoS.length ? 1 : .4;
       root.classList.toggle('pan', tool === 'pan');
     }
     sync();
@@ -377,7 +415,7 @@
     var node = root;
     if (asOverlay) {
       var close = el('button', { type: 'button', class: 'wall-close', text: '✕ Fermer' });
-      close.addEventListener('click', function () { var i = st.subs.indexOf(view); if (i >= 0) st.subs.splice(i, 1); root.remove(); });
+      close.addEventListener('click', function () { document.removeEventListener('keydown', onKey); var i = st.subs.indexOf(view); if (i >= 0) st.subs.splice(i, 1); root.remove(); });
       root.appendChild(close);
     }
     return { node: node, center: center };

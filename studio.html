@@ -143,7 +143,7 @@
 </div>
 <div class="toast" id="toast" hidden role="status"></div>
 
-<script src="shared.js"></script>
+<script src="shared.js?v=2"></script>
 <script>
 (function () {
   'use strict';
@@ -500,7 +500,7 @@
     let last = 0; const all = [];
     const step = () => Q.rest('drawings?select=id,stroke&id=gt.' + last + '&order=id.asc&limit=1000', null, null, 15000).then((rows) => {
       rows = rows || [];
-      rows.forEach((r) => { last = Math.max(last, r.id); const s = Q.cleanStroke(r.stroke); if (s) all.push(s); });
+      rows.forEach((r) => { last = Math.max(last, r.id); const s = Q.cleanStroke(r.stroke); if (!s) return; if (s.u) { const j = all.findIndex((x) => x.k === s.u); if (j >= 0) all.splice(j, 1); } else all.push(s); });
       return rows.length < 1000 ? all : step();
     });
     return step();
@@ -688,11 +688,9 @@
         bt === 'video' ? media('bg.media', 'Vidéo (fichier ou lien YouTube)', 'video') : null,
         hasM ? [
           seg('layout', 'Présentation', [['full', 'Texte par-dessus le fond'], ['card', 'Dans un cadre, texte dessous']], true),
-          cfg.layout === 'full' ? [
-            col('bg.color', 'Couleur du fond (derrière la ' + (bt === 'video' ? 'vidéo' : 'photo') + ')'),
-            rng('bg.mediaOpacity', 'Opacité de la ' + (bt === 'video' ? 'vidéo' : 'photo') + ' sur cette couleur', 0, 1, 0.05),
-            rng('bg.overlay', 'Voile sur le fond', 0, 0.9, 0.05), col('bg.overlayColor', 'Couleur du voile')
-          ] : col('bg.color', 'Couleur derrière le cadre')
+          col('bg.color', 'Couleur du fond (derrière la ' + (bt === 'video' ? 'vidéo' : 'photo') + ')'),
+          rng('bg.mediaOpacity', 'Opacité de la ' + (bt === 'video' ? 'vidéo' : 'photo') + ' (100 % = bien visible)', 0, 1, 0.05),
+          cfg.layout === 'full' ? [rng('bg.overlay', 'Voile sur le fond', 0, 0.9, 0.05), col('bg.overlayColor', 'Couleur du voile')] : null
         ] : null));
 
       root.append(card('Texte',
@@ -740,7 +738,7 @@
         el('p', { class: 'hint', text: 'Les cartes du dessin et du livre d’or (et leurs languettes).' }),
         col('modStyle.bg', 'Couleur de la carte'),
         col('modStyle.color', 'Couleur du texte'),
-        rng('modStyle.opacity', 'Opacité de la carte', 0.2, 1, 0.05),
+        rng('modStyle.opacity', 'Opacité du fond de la carte (le texte reste net)', 0, 1, 0.05),
         rng('modStyle.radius', 'Arrondi des coins', 0, 40, 2, ' px')));
     }
     root.append(card('Mes fichiers', el('p', { class: 'hint', text: 'Toutes tes photos, vidéos et musiques envoyées.' }), btn('Ouvrir mes fichiers', '', () => openPicker(null, null))));
